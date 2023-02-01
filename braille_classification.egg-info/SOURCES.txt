@@ -1,0 +1,8 @@
+README.md
+setup.py
+braille_classification/__init__.py
+braille_classification.egg-info/PKG-INFO
+braille_classification.egg-info/SOURCES.txt
+braille_classification.egg-info/dependency_links.txt
+braille_classification.egg-info/not-zip-safe
+braille_classification.egg-info/top_level.txt
