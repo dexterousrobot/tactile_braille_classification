@@ -9,6 +9,7 @@ import argparse
 
 from braille_classification import BASE_DATA_PATH
 from braille_classification.learning.utils_learning import csv_row_to_label
+from braille_classification.learning.setup_learning import setup_learning
 
 from tactile_learning.supervised.image_generator import demo_image_generation
 
@@ -25,26 +26,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     tasks = args.tasks
 
-    learning_params = {
-        'batch_size':  8,
-        'shuffle': True,
-        'n_cpu': 1,
-    }
-
-    image_processing_params = {
-        'dims': (128, 128),
-        'bbox': None,
-        'thresh': None,
-        'stdiz': False,
-        'normlz': True,
-    }
-
-    augmentation_params = {
-        'rshift': None,  # (0.015, 0.015),
-        'rzoom':   None,
-        'brightlims': None,
-        'noise_var': None,
-    }
+    learning_params, image_processing_params, augmentation_params = setup_learning()
 
     data_dirs = [
         os.path.join(BASE_DATA_PATH, task, 'train') for task in tasks
