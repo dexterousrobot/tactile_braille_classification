@@ -1,10 +1,4 @@
-"""
-python evaluate_model.py -t alphabet
-python evaluate_model.py -t arrows
-python evaluate_model.py -t alphabet arrows
-"""
 import os
-import argparse
 import numpy as np
 from torch.autograd import Variable
 import torch
@@ -15,6 +9,7 @@ from tactile_learning.supervised.models import create_model
 from tactile_learning.supervised.image_generator import ImageDataGenerator
 from tactile_learning.utils.utils_learning import load_json_obj
 
+from braille_classification.learning.setup_learning import parse_args
 from braille_classification.learning.setup_learning import setup_task
 from braille_classification.learning.utils_plots import plot_confusion_matrix
 from braille_classification.learning.utils_learning import LabelEncoder
@@ -30,18 +25,11 @@ def evaluate_model(
     task,
     model,
     label_encoder,
-    data_dirs,
+    generator,
     learning_params,
-    image_processing_params,
     save_dir,
     device='cpu'
 ):
-    # set generators and loaders
-    generator = ImageDataGenerator(
-        data_dirs=data_dirs,
-        csv_row_to_label=csv_row_to_label,
-        **image_processing_params
-    )
 
     loader = torch.utils.data.DataLoader(
         generator,
@@ -93,28 +81,8 @@ def evaluate_model(
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '-t', '--tasks',
-        nargs='+',
-        help="Choose task from ['alphabet', 'arrows'].",
-        default=['arrows']
-    )
-    parser.add_argument(
-        '-m', '--models',
-        nargs='+',
-        help="Choose model from ['simple_cnn', 'nature_cnn', 'resnet', 'vit'].",
-        default=['simple_cnn']
-    )
-    parser.add_argument(
-        '-d', '--device',
-        type=str,
-        help="Choose device from ['cpu', 'cuda'].",
-        default='cuda'
-    )
-
     # parse arguments
-    args = parser.parse_args()
+    args = parse_args()
     tasks = args.tasks
     models = args.models
     device = args.device
@@ -130,16 +98,16 @@ if __name__ == "__main__":
             save_dir = os.path.join(BASE_MODEL_PATH, task, model_type)
 
             # setup parameters
-            network_params = load_json_obj(os.path.join(save_dir, 'model_params'))
+            model_params = load_json_obj(os.path.join(save_dir, 'model_params'))
             learning_params = load_json_obj(os.path.join(save_dir, 'learning_params'))
             image_processing_params = load_json_obj(os.path.join(save_dir, 'image_processing_params'))
 
             # create the model
             model = create_model(
-                image_processing_params['dims'],
-                out_dim,
-                network_params,
-                saved_model_dir=save_dir,  # loads weights of best_model.pth
+                in_dim=image_processing_params['dims'],
+                in_channels=1,
+                out_dim=out_dim,
+                model_params=model_params,
                 device=device
             )
             model.eval()
@@ -147,6 +115,11 @@ if __name__ == "__main__":
             val_data_dirs = [
                 os.path.join(BASE_DATA_PATH, task, 'val')
             ]
+            val_generator = ImageDataGenerator(
+                data_dirs=val_data_dirs,
+                csv_row_to_label=csv_row_to_label,
+                **image_processing_params
+            )
 
             # create the encoder/decoder for labels
             label_encoder = LabelEncoder(out_dim, label_names, device)
@@ -155,9 +128,8 @@ if __name__ == "__main__":
                 task,
                 model,
                 label_encoder,
-                val_data_dirs,
+                val_generator,
                 learning_params,
-                image_processing_params,
                 save_dir,
                 device=device
             )

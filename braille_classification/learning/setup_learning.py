@@ -1,8 +1,35 @@
 import os
+import argparse
 
 from tactile_learning.utils.utils_learning import save_json_obj
 from braille_classification.learning.utils_learning import ARROW_NAMES
 from braille_classification.learning.utils_learning import ALPHA_NAMES
+
+
+def parse_args():
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-t', '--tasks',
+        nargs='+',
+        help="Choose task from ['arrows', 'alphabet'].",
+        default=['arrows']
+    )
+    parser.add_argument(
+        '-m', '--models',
+        nargs='+',
+        help="Choose model from ['simple_cnn', 'posenet_cnn', 'nature_cnn', 'resnet', 'vit'].",
+        default=['simple_cnn']
+    )
+    parser.add_argument(
+        '-d', '--device',
+        type=str,
+        help="Choose device from ['cpu', 'cuda'].",
+        default='cuda'
+    )
+    # parse arguments
+    args = parser.parse_args()
+    return args
 
 
 def setup_learning(save_dir=None):
