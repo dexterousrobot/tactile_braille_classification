@@ -1,44 +1,59 @@
 import os
+import shutil
 import argparse
+import numpy as np
 
-from tactile_learning.utils.utils_learning import save_json_obj
-from braille_classification.learning.utils_learning import ARROW_NAMES
-from braille_classification.learning.utils_learning import ALPHA_NAMES
+from tactile_data.utils_data import save_json_obj
+
+ARROW_NAMES = ['UP', 'DOWN', 'LEFT', 'RIGHT', 'NONE']
+ALPHA_NAMES = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',
+               'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L',
+               'Z', 'X', 'C', 'V', 'B', 'N', 'M',
+               'SPACE', 'NONE']
 
 
-def parse_args():
+def csv_row_to_label(row):
+    return {
+        'id': np.array(row['obj_id'] - 1),
+        'label': row['obj_lbl'],
+    }
 
+
+def setup_parse_args(
+        tasks=['arrows'],
+        models=['simple_cnn'],
+        device='cuda'
+):
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '-t', '--tasks',
         nargs='+',
         help="Choose task from ['arrows', 'alphabet'].",
-        default=['arrows']
+        default=tasks
     )
     parser.add_argument(
         '-m', '--models',
         nargs='+',
         help="Choose model from ['simple_cnn', 'posenet_cnn', 'nature_cnn', 'resnet', 'vit'].",
-        default=['simple_cnn']
+        default=models
     )
     parser.add_argument(
         '-d', '--device',
         type=str,
         help="Choose device from ['cpu', 'cuda'].",
-        default='cuda'
+        default=device
     )
     # parse arguments
     args = parser.parse_args()
-    return args
+    return args.tasks, args.models, args.device
 
 
 def setup_learning(save_dir=None):
 
-    # Parameters
     learning_params = {
         'seed': 42,
         'batch_size': 64,
-        'epochs': 100,
+        'epochs': 10,
         'lr': 1e-4,
         'lr_factor': 0.5,
         'lr_patience': 10,
@@ -46,7 +61,7 @@ def setup_learning(save_dir=None):
         'adam_b1': 0.9,
         'adam_b2': 0.999,
         'shuffle': True,
-        'n_cpu': 8,
+        'n_cpu': 1,
     }
 
     image_processing_params = {
@@ -64,12 +79,16 @@ def setup_learning(save_dir=None):
         'noise_var': None,
     }
 
+    preproc_params = {
+        'image_processing': image_processing_params,
+        'augmentation': augmentation_params
+    }
+
     if save_dir:
         save_json_obj(learning_params, os.path.join(save_dir, 'learning_params'))
-        save_json_obj(image_processing_params, os.path.join(save_dir, 'image_processing_params'))
-        save_json_obj(augmentation_params, os.path.join(save_dir, 'augmentation_params'))
+        save_json_obj(preproc_params, os.path.join(save_dir, 'preproc_params'))
 
-    return learning_params, image_processing_params, augmentation_params
+    return learning_params, preproc_params
 
 
 def setup_model(model_type, save_dir):
@@ -131,14 +150,24 @@ def setup_task(task_name):
     """
 
     if task_name == 'arrows':
-        out_dim = len(ARROW_NAMES)
         label_names = ARROW_NAMES
 
     elif task_name == 'alphabet':
-        out_dim = len(ALPHA_NAMES)
         label_names = ALPHA_NAMES
 
     else:
         raise ValueError('Incorrect task_name specified: {}'.format(task_name))
 
-    return out_dim, label_names
+    return label_names
+
+
+def setup_training(model_type, task, data_dirs, save_dir=None):
+    learning_params, preproc_params = setup_learning(save_dir)
+    model_params = setup_model(model_type, save_dir)
+    task_params = setup_task(task)
+
+    # retain data parameters
+    if save_dir:
+        shutil.copy(os.path.join(data_dirs[0], 'sensor_params.json'), save_dir)
+
+    return learning_params, model_params, preproc_params, task_params
