@@ -1,19 +1,20 @@
 import os
 
-from braille_classification.learning.setup_learning import parse_args
+from tactile_data.braille_classification import BASE_DATA_PATH
+from braille_classification.learning.setup_training import setup_parse_args, setup_learning
 from braille_classification.learning.utils_learning import csv_row_to_label
-from braille_classification.learning.setup_learning import setup_learning
-
 from tactile_learning.supervised.image_generator import demo_image_generation
 
-from braille_classification import BASE_DATA_PATH
 
 if __name__ == '__main__':
 
-    args = parse_args()
-    tasks = args.tasks
+    tasks, models, device = setup_parse_args(
+        tasks=['arrows'],
+        models=['simple_cnn'],
+        device='cuda'
+    )
 
-    learning_params, image_processing_params, augmentation_params = setup_learning()
+    learning_params, preproc_params = setup_learning()
 
     data_dirs = [
         *[os.path.join(BASE_DATA_PATH, task, 'train') for task in tasks],
@@ -24,6 +25,6 @@ if __name__ == '__main__':
         data_dirs,
         csv_row_to_label,
         learning_params,
-        image_processing_params,
-        augmentation_params
+        preproc_params['image_processing_params'],
+        preproc_params['augmentation_params']
     )
