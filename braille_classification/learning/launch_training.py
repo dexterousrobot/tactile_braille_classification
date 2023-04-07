@@ -1,54 +1,47 @@
+"""
+python launch_training.py -m simple_cnn -t arrows
+"""
 import os
 
-from braille_classification.learning.setup_training import setup_training
-from braille_classification.learning.setup_training import csv_row_to_label
-from braille_classification.utils.setup_parse_args import setup_parse_args
-
+from tactile_data.braille_classification import BASE_DATA_PATH, BASE_MODEL_PATH
+from tactile_data.utils_data import make_dir
 from tactile_learning.supervised.models import create_model
 from tactile_learning.supervised.simple_train_model import simple_train_model
-from tactile_learning.utils.utils_learning import seed_everything, make_dir
+from tactile_learning.utils.utils_learning import seed_everything
 from tactile_learning.supervised.image_generator import ImageDataGenerator
 
-from braille_classification.learning.evaluate_model import evaluate_model
-from braille_classification.learning.utils_learning import LabelEncoder
-
-from tactile_data.braille_classification import BASE_DATA_PATH
-from tactile_data.braille_classification import BASE_MODEL_PATH
+from evaluate_model import evaluate_model
+from setup_training import setup_training, setup_parse_args, csv_row_to_label
+from utils_learning import LabelEncoder
+from utils_plots import ClassErrorPlotter
 
 
 def launch(
-    robot='sim',
-    sensor='tactip',
-    tasks=['arrows'],
+    tasks=['alphabet'],
     models=['simple_cnn'],
     device='cuda'
 ):
-
     model_version = ''
+    sensor_str = 'tactip_331_25mm'
 
-    # parse arguments
-    robot_str, sensor_str, tasks, models, device = setup_parse_args(robot, sensor, tasks, models, device)
-
-    # for setting network and learning params
-    prediction_mode = 'classification'
-    robot_sensor_str = robot_str + '_' + sensor_str
+    tasks, models, device = setup_parse_args(tasks, models, device)
 
     for task, model_str in zip(tasks, models):
 
-        # data dirs - list of directories combined in generator
+        # data dir - can specify list of directories as these are combined in generator
         train_data_dirs = [
-            os.path.join(BASE_DATA_PATH, robot_sensor_str, task, 'train'),
+            os.path.join(BASE_DATA_PATH, sensor_str, task, 'train')
         ]
         val_data_dirs = [
-            os.path.join(BASE_DATA_PATH, robot_sensor_str, task, 'val'),
+            os.path.join(BASE_DATA_PATH, sensor_str, task, 'val')
         ]
 
         # setup save dir
-        save_dir = os.path.join(BASE_MODEL_PATH, robot_sensor_str, task, model_str + model_version)
+        save_dir = os.path.join(BASE_MODEL_PATH, sensor_str, task, model_str + model_version)
         make_dir(save_dir)
 
         # setup parameters
-        learning_params, model_params, preproc_params, task_params = setup_training(
+        learning_params, model_params, preproc_params, class_names = setup_training(
             model_str,
             task,
             train_data_dirs,
@@ -56,7 +49,10 @@ def launch(
         )
 
         # create the encoder/decoder for labels
-        label_encoder = LabelEncoder(task_params['out_dim'], task_params['label_names'], device)
+        label_encoder = LabelEncoder(class_names, device)
+
+        # create plotter of classificaiton
+        error_plotter = ClassErrorPlotter(class_names, save_dir, name='error_plot_best.png')
 
         # create the model
         seed_everything(learning_params['seed'])
@@ -82,7 +78,7 @@ def launch(
 
         # run training
         simple_train_model(
-            prediction_mode,
+            'classification',
             model,
             label_encoder,
             train_generator,
@@ -94,12 +90,11 @@ def launch(
 
         # run evaluation
         evaluate_model(
-            task,
             model,
             label_encoder,
             val_generator,
             learning_params,
-            save_dir,
+            error_plotter,
             device=device
         )
 

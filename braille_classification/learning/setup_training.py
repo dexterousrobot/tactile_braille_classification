@@ -1,8 +1,15 @@
 import os
 import shutil
+import argparse
 import numpy as np
 
-from tactile_learning.utils.utils_learning import save_json_obj
+from tactile_data.utils_data import save_json_obj
+
+ARROW_NAMES = ['UP', 'DOWN', 'LEFT', 'RIGHT', 'NONE']
+ALPHA_NAMES = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',
+               'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L',
+               'Z', 'X', 'C', 'V', 'B', 'N', 'M',
+               'SPACE', 'NONE']
 
 
 def csv_row_to_label(row):
@@ -14,11 +21,10 @@ def csv_row_to_label(row):
 
 def setup_learning(save_dir=None):
 
-    # Parameters
     learning_params = {
         'seed': 42,
         'batch_size': 64,
-        'epochs': 100,
+        'epochs': 10,
         'lr': 1e-4,
         'lr_factor': 0.5,
         'lr_patience': 10,
@@ -26,7 +32,7 @@ def setup_learning(save_dir=None):
         'adam_b1': 0.9,
         'adam_b2': 0.999,
         'shuffle': True,
-        'n_cpu': 8,
+        'n_cpu': 1,
     }
 
     image_processing_params = {

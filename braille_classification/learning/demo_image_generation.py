@@ -24,6 +24,6 @@ if __name__ == '__main__':
         data_dirs,
         csv_row_to_label,
         learning_params,
-        preproc_params['image_processing'],
-        preproc_params['augmentation'],
+        preproc_params['image_processing_params'],
+        preproc_params['augmentation_params']
     )

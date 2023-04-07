@@ -4,10 +4,14 @@ import torch
 
 class LabelEncoder:
 
-    def __init__(self, out_dim, target_label_names, device):
+    def __init__(self, label_names, device='cuda'):
         self.device = device
-        self.out_dim = out_dim
-        self.target_label_names = target_label_names
+        self.target_label_names = label_names
+
+    @property
+    def out_dim(self):
+        return len(self.target_label_names)
+    
 
     def encode_label(self, labels_dict):
         """
