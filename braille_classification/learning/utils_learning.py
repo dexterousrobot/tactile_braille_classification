@@ -2,20 +2,6 @@ import numpy as np
 import torch
 
 
-ARROW_NAMES = ['UP', 'DOWN', 'LEFT', 'RIGHT', 'NONE']
-ALPHA_NAMES = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',
-               'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L',
-               'Z', 'X', 'C', 'V', 'B', 'N', 'M',
-               'SPACE', 'NONE']
-
-
-def csv_row_to_label(row):
-    return {
-        'id': np.array(row['obj_id'] - 1),
-        'label': row['obj_lbl'],
-    }
-
-
 class LabelEncoder:
 
     def __init__(self, out_dim, target_label_names, device):

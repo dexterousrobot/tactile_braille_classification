@@ -9,14 +9,14 @@ from tactile_learning.supervised.models import create_model
 from tactile_learning.supervised.image_generator import ImageDataGenerator
 from tactile_learning.utils.utils_learning import load_json_obj
 
-from braille_classification.learning.setup_learning import parse_args
-from braille_classification.learning.setup_learning import setup_task
+from braille_classification.utils.setup_parse_args import setup_parse_args
+from braille_classification.learning.setup_training import setup_task
+from braille_classification.learning.setup_training import csv_row_to_label
 from braille_classification.learning.utils_plots import plot_confusion_matrix
 from braille_classification.learning.utils_learning import LabelEncoder
-from braille_classification.learning.utils_learning import csv_row_to_label
 
-from braille_classification import BASE_DATA_PATH
-from braille_classification import BASE_MODEL_PATH
+from tactile_data.braille_classification import BASE_DATA_PATH
+from tactile_data.braille_classification import BASE_MODEL_PATH
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
@@ -82,17 +82,14 @@ def evaluate_model(
 if __name__ == "__main__":
 
     # parse arguments
-    args = parse_args()
-    tasks = args.tasks
-    models = args.models
-    device = args.device
+    robot_str, sensor_str, tasks, models, device = setup_parse_args()
 
     # test the trained networks
     for model_type in models:
         for task in tasks:
 
             # task specific parameters
-            out_dim, label_names = setup_task(task)
+            task_params = setup_task(task)
 
             # set save dir
             save_dir = os.path.join(BASE_MODEL_PATH, task, model_type)
@@ -106,7 +103,7 @@ if __name__ == "__main__":
             model = create_model(
                 in_dim=image_processing_params['dims'],
                 in_channels=1,
-                out_dim=out_dim,
+                out_dim=task_params['out_dim'],
                 model_params=model_params,
                 device=device
             )
@@ -122,7 +119,7 @@ if __name__ == "__main__":
             )
 
             # create the encoder/decoder for labels
-            label_encoder = LabelEncoder(out_dim, label_names, device)
+            label_encoder = LabelEncoder(task_params['out_dim'], task_params['label_names'], device)
 
             evaluate_model(
                 task,
