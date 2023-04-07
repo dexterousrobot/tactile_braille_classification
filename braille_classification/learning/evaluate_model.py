@@ -11,9 +11,10 @@ from tactile_data.utils_data import load_json_obj
 from tactile_learning.supervised.models import create_model
 from tactile_learning.supervised.image_generator import ImageDataGenerator
 
-from setup_training import setup_parse_args, setup_task, csv_row_to_label
-from utils_learning import LabelEncoder
-from utils_plots import ClassErrorPlotter
+from braille_classification.utils.setup_parse_args import setup_parse_args
+from braille_classification.learning.setup_training import setup_task, csv_row_to_label
+from braille_classification.learning.utils_learning import LabelEncoder
+from braille_classification.learning.utils_plots import ClassErrorPlotter
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
@@ -66,36 +67,37 @@ def evaluate_model(
 
 if __name__ == "__main__":
 
-    tasks, models, device = setup_parse_args(
-        tasks=['alphabet'],
+    robot_str, sensor_str, tasks, models, device = setup_parse_args(
+        robot='sim',
+        sensor='tactip',
+        tasks=['arrows'],
         models=['simple_cnn'],
         device='cuda'
     )
 
     model_version = ''
-    sensor = 'tactip_331_25mm'
 
     # test the trained networks
     for task, model_type in zip(tasks, models):
 
         val_data_dirs = [
-            os.path.join(BASE_DATA_PATH, sensor, task, 'val')
+            os.path.join(BASE_DATA_PATH, robot_str + '_' + sensor_str, task, 'val')
         ]
 
         # set save dir
-        save_dir = os.path.join(BASE_MODEL_PATH, sensor, task, model_type + model_version)
+        model_dir = os.path.join(BASE_MODEL_PATH, robot_str + '_' + sensor_str, task, model_type + model_version)
 
         # setup parameters
-        learning_params = load_json_obj(os.path.join(save_dir, 'learning_params'))
-        model_params = load_json_obj(os.path.join(save_dir, 'model_params'))
-        preproc_params = load_json_obj(os.path.join(save_dir, 'preproc_params'))
+        learning_params = load_json_obj(os.path.join(model_dir, 'learning_params'))
+        model_params = load_json_obj(os.path.join(model_dir, 'model_params'))
+        preproc_params = load_json_obj(os.path.join(model_dir, 'preproc_params'))
 
         # create the encoder/decoder for labels
-        class_names = setup_task(task)
-        label_encoder = LabelEncoder(class_names, device)
+        task_params = setup_task(task)
+        label_encoder = LabelEncoder(task_params['label_names'], device)
 
         # create plotter of classificaiton
-        error_plotter = ClassErrorPlotter(class_names, save_dir, name='error_plot_best.png')
+        error_plotter = ClassErrorPlotter(task_params['label_names'], model_dir, name='error_plot_best.png')
 
         # create the model
         model = create_model(
@@ -103,7 +105,7 @@ if __name__ == "__main__":
             in_channels=1,
             out_dim=label_encoder.out_dim,
             model_params=model_params,
-            saved_model_dir=save_dir,
+            saved_model_dir=model_dir,
             device=device
         )
         model.eval()

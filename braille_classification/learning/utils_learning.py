@@ -11,7 +11,6 @@ class LabelEncoder:
     @property
     def out_dim(self):
         return len(self.target_label_names)
-    
 
     def encode_label(self, labels_dict):
         """
