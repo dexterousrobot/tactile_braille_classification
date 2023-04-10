@@ -14,16 +14,16 @@ class ClassErrorPlotter:
         class_names,
         save_dir=None,
         name="error_plot.png",
-        plot_while_train=False,
+        plot_during_training=False,
         normalize=True
     ):    
         self.class_names = class_names
         self.save_dir = save_dir
         self.name = name
-        self.plot_while_train = plot_while_train
+        self.plot_during_training = plot_during_training
         self.normalize = normalize
 
-        if plot_while_train:
+        if plot_during_training:
             plt.ion()
             plt.figure()
             self._fig = plt.gcf()
@@ -71,7 +71,7 @@ class ClassErrorPlotter:
         pred_arr,
         targ_arr
     ):
-        if not self.plot_while_train:
+        if not self.plot_during_training:
             plt.figure()
             self._fig = plt.gcf()
             self._fig.set_size_inches((12, 12), forward=False)

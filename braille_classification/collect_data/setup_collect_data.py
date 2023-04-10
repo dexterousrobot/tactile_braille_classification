@@ -94,7 +94,7 @@ def setup_env_params(robot, task, save_dir=None):
         'speed': float("inf"),
         'work_frame': work_frame_dict[robot + '_' + task][0],
         'tcp_pose': work_frame_dict[robot + '_' + task][1],
-        'show_gui': False
+        'show_gui': True
     }
 
     if robot == 'sim':

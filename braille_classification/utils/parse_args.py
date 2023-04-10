@@ -1,14 +1,16 @@
 import argparse
 
 
-def setup_parse_args(
+def parse_args(
         robot='sim',
         sensor='tactip',
         tasks=['arrows'],
         models=['simple_cnn'],
+        version=[],
         device='cuda'
 ):
     parser = argparse.ArgumentParser()
+
     parser.add_argument(
         '-r', '--robot',
         type=str,
@@ -34,11 +36,16 @@ def setup_parse_args(
         default=models
     )
     parser.add_argument(
+        '-v', '--version',
+        type=str,
+        help="Choose version from [[], 'test'].",
+        default=version
+    )
+    parser.add_argument(
         '-d', '--device',
         type=str,
         help="Choose device from ['cpu', 'cuda']",
         default=device
     )
-    # parse arguments
-    args = parser.parse_args()
-    return args.robot, args.sensor, args.tasks, args.models, args.device
+
+    return parser.parse_args()
