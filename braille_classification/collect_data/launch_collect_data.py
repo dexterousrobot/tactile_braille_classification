@@ -7,13 +7,10 @@ import numpy as np
 from tactile_data.braille_classification import BASE_DATA_PATH
 from tactile_data.utils_data import make_dir
 
-from braille_classification.utils.setup_embodiment import setup_embodiment
-from braille_classification.utils.setup_parse_args import setup_parse_args
 from braille_classification.collect_data.setup_collect_data import setup_collect_data
 from braille_classification.collect_data.utils_collect_data import setup_target_df
-
-
-np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
+from braille_classification.utils.parse_args import parse_args
+from braille_classification.utils.setup_embodiment import setup_embodiment
 
 
 def collect_data(
@@ -75,33 +72,38 @@ def collect_data(
     robot.close()
 
 
-def launch(
-    robot='sim',
-    sensor='tactip',
-    tasks=['arrows']
-):
+def launch():
+
+    args = parse_args(
+        robot='sim', 
+        sensor='tactip',
+        tasks=['arrows'],
+        version=['test']
+    )
+
     data_params = {
         # 'data': 200,  # per key
         'train': 200,  # per key
         'val': 50,  # per key
     }
 
-    robot_str, sensor_str, tasks, _, _ = setup_parse_args(robot, sensor, tasks)
+    for args.task in args.tasks:
+        for data_dir_name, num_samples in data_params.items():
 
-    for task in tasks:
-        for dir_name, num_samples in data_params.items():
+            data_dir_name = '_'.join([data_dir_name, *args.version])
+            output_dir = '_'.join([args.robot, args.sensor])
 
             # setup save dir
-            save_dir = os.path.join(BASE_DATA_PATH, robot_str + '_' + sensor_str, task, dir_name)
+            save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.task, data_dir_name)
             image_dir = os.path.join(save_dir, "images")
             make_dir(save_dir)
             make_dir(image_dir)
 
             # setup parameters
             collect_params, env_params, sensor_params = setup_collect_data(
-                robot_str,
-                sensor_str,
-                task,
+                args.robot,
+                args.sensor,
+                args.task,
                 save_dir
             )
 
