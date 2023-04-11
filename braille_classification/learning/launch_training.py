@@ -10,11 +10,11 @@ from tactile_learning.supervised.image_generator import ImageDataGenerator
 from tactile_learning.supervised.models import create_model
 from tactile_learning.supervised.train_model_w_metrics import train_model_w_metrics
 from tactile_learning.utils.utils_learning import seed_everything
+from tactile_learning.utils.utils_plots import ClassificationPlotter
 
 from braille_classification.learning.evaluate_model import evaluate_model
 from braille_classification.learning.setup_training import setup_training, csv_row_to_label
 from braille_classification.learning.utils_learning import LabelEncoder
-from braille_classification.learning.utils_plots import ClassErrorPlotter
 from braille_classification.utils.parse_args import parse_args
 
 
@@ -83,7 +83,7 @@ def launch():
         )
 
         # create plotter of classification errors
-        error_plotter = ClassErrorPlotter(
+        error_plotter = ClassificationPlotter(
             task_params['label_names'],
             save_dir,
             name='error_plot.png',

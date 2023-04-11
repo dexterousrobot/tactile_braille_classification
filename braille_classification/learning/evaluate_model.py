@@ -11,10 +11,10 @@ from tactile_data.braille_classification import BASE_DATA_PATH, BASE_MODEL_PATH
 from tactile_data.utils_data import load_json_obj
 from tactile_learning.supervised.models import create_model
 from tactile_learning.supervised.image_generator import ImageDataGenerator
+from tactile_learning.utils.utils_plots import ClassificationPlotter
 
 from braille_classification.learning.setup_training import setup_task, csv_row_to_label
 from braille_classification.learning.utils_learning import LabelEncoder
-from braille_classification.learning.utils_plots import ClassErrorPlotter
 from braille_classification.utils.parse_args import parse_args
 
 
@@ -106,7 +106,7 @@ if __name__ == "__main__":
         label_encoder = LabelEncoder(task_params['label_names'], args.device)
 
         # create plotter of classificaiton
-        error_plotter = ClassErrorPlotter(task_params['label_names'], model_dir, name='error_plot_best.png')
+        error_plotter = ClassificationPlotter(task_params['label_names'], model_dir, name='error_plot_best.png')
 
         # create the model
         model = create_model(
