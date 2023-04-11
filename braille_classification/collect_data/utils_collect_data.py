@@ -2,6 +2,8 @@ import os
 import numpy as np
 import pandas as pd
 
+# WARNING: urdf does not follow this pattern exactly due to auto placement of STLs.
+# This can introduce some bias in the data due to a slight offset in the placement of the key.
 x_increment = -17.5
 y_increment = 17.5
 obj_poses_dict = {

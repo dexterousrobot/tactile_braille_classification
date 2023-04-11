@@ -47,19 +47,6 @@ class LabelEncoder:
         err_df = self.err_metric(labels, predictions)
         acc_df = self.acc_metric(err_df)
         return err_df, acc_df
-    
-    def calc_batch_metrics(self, labels, predictions):
-        """
-        Calculate metrics useful for measuring progress throughout training.
-
-        Returns: dict of metrics
-            {
-                'metric': np.array()
-            }
-        """
-        err_df = self.err_metric(labels, predictions)
-        acc_df = self.acc_metric(err_df)
-        return err_df, acc_df
 
     def err_metric(self, labels, predictions):
         """
@@ -69,7 +56,7 @@ class LabelEncoder:
         items = zip(labels['label'], predictions['label'])
 
         for label_name in self.target_label_names:
-            correct = [p==label_name and l==label_name for l, p in items]
+            correct = [pred == label_name and lab == label_name for lab, pred in items]
             err_df[label_name] = correct
 
         return err_df

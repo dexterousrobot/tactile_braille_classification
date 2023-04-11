@@ -22,21 +22,21 @@ from braille_classification.utils.parse_args import parse_args
 def launch():
 
     args = parse_args(
-        robot='sim', 
+        robot='sim',
         sensor='tactip',
         tasks=['arrows'],
         models=['simple_cnn'],
-        version=['test'],
+        version=[''],
         device='cuda'
     )
 
     output_dir = '_'.join([args.robot, args.sensor])
-    train_dir_name = '_'.join(["train", *args.version])
-    val_dir_name = '_'.join(["val", *args.version])      
+    train_dir_name = '_'.join(filter(None, ["train", *args.version]))
+    val_dir_name = '_'.join(filter(None, ["val", *args.version]))
 
     for args.task, args.model in it.product(args.tasks, args.models):
 
-        model_dir_name = '_'.join([args.model, *args.version]) 
+        model_dir_name = '_'.join([args.model, *args.version])
 
         # data dirs - list of directories combined in generator
         train_data_dirs = [
@@ -96,8 +96,8 @@ def launch():
 
         # create plotter of classification errors
         error_plotter = ClassErrorPlotter(
-            task_params['label_names'], 
-            save_dir, 
+            task_params['label_names'],
+            save_dir,
             name='error_plot.png',
             # plot_during_training=True
         )

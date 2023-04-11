@@ -12,16 +12,15 @@ from tactile_data.braille_classification import BASE_DATA_PATH
 if __name__ == '__main__':
 
     args = parse_args(
-        robot='sim', 
+        robot='sim',
         sensor='tactip',
         tasks=['arrows'],
-        version=['test']
+        version=['']
     )
 
-
     output_dir = '_'.join([args.robot, args.sensor])
-    train_dir_name = '_'.join(["train", *args.version])
-    val_dir_name = '_'.join(["val", *args.version])
+    train_dir_name = '_'.join(filter(None, ["train", *args.version]))
+    val_dir_name = '_'.join(filter(None, ["val", *args.version]))
 
     learning_params, preproc_params = setup_learning()
 

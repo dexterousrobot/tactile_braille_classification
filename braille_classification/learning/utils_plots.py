@@ -16,7 +16,7 @@ class ClassErrorPlotter:
         name="error_plot.png",
         plot_during_training=False,
         normalize=True
-    ):    
+    ):
         self.class_names = class_names
         self.save_dir = save_dir
         self.name = name
@@ -28,7 +28,6 @@ class ClassErrorPlotter:
             plt.figure()
             self._fig = plt.gcf()
             self._fig.set_size_inches((12, 12), forward=False)
-
 
     def update(
         self,
@@ -50,9 +49,9 @@ class ClassErrorPlotter:
         thresh = cm.max() / 2.
         for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
             plt.text(j, i, format(cm[i, j], fmt),
-                    horizontalalignment="center",
-                    color="white" if cm[i, j] > thresh else "black",
-                    fontsize=8)
+                     horizontalalignment="center",
+                     color="white" if cm[i, j] > thresh else "black",
+                     fontsize=8)
 
         plt.tight_layout()
         plt.xlabel('Target class', fontsize=16, fontweight='bold')
@@ -64,7 +63,6 @@ class ClassErrorPlotter:
 
         self._fig.canvas.draw()
         plt.pause(0.01)
-
 
     def final_plot(
         self,

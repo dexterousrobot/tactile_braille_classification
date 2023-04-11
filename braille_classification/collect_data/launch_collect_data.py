@@ -75,10 +75,10 @@ def collect_data(
 def launch():
 
     args = parse_args(
-        robot='sim', 
+        robot='sim',
         sensor='tactip',
         tasks=['arrows'],
-        version=['test']
+        version=['']
     )
 
     data_params = {
@@ -90,7 +90,7 @@ def launch():
     for args.task in args.tasks:
         for data_dir_name, num_samples in data_params.items():
 
-            data_dir_name = '_'.join([data_dir_name, *args.version])
+            data_dir_name = '_'.join(filter(None, [data_dir_name, *args.version]))
             output_dir = '_'.join([args.robot, args.sensor])
 
             # setup save dir

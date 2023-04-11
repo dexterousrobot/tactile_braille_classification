@@ -67,11 +67,11 @@ def evaluate_model(
 if __name__ == "__main__":
 
     args = parse_args(
-        robot='sim', 
+        robot='sim',
         sensor='tactip',
         tasks=['arrows'],
         models=['simple_cnn'],
-        version=['test'],
+        version=[''],
         device='cuda'
     )
 
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     for args.task, args.model in it.product(args.tasks, args.models):
 
         output_dir = '_'.join([args.robot, args.sensor])
-        val_dir_name = '_'.join(["val", *args.version])      
+        val_dir_name = '_'.join(filter(None, ["val", *args.version]))
         model_dir_name = '_'.join([args.model, *args.version])
 
         val_data_dirs = [
