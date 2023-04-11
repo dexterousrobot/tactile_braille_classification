@@ -3,7 +3,6 @@ import itertools
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.metrics import confusion_matrix
 
 sns.set_theme(style="darkgrid")
 
@@ -31,14 +30,14 @@ class ClassErrorPlotter:
 
     def update(
         self,
-        pred_arr,
-        targ_arr
+        pred_df,
+        targ_df,
+        metrics=None,
     ):
-        cm = confusion_matrix(targ_arr, pred_arr)
 
-        if self.normalize:
-            cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        self._fig.gca().clear()
 
+        cm = metrics['conf_mat']
         plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
 
         tick_marks = np.arange(len(self.class_names))
@@ -66,18 +65,17 @@ class ClassErrorPlotter:
 
     def final_plot(
         self,
-        pred_arr,
-        targ_arr
+        pred_df,
+        targ_df,
+        metrics=None,
     ):
         if not self.plot_during_training:
             plt.figure()
             self._fig = plt.gcf()
             self._fig.set_size_inches((12, 12), forward=False)
 
-        self.update(
-            pred_arr, targ_arr
-        )
-        plt.show()
+        self.update(pred_df, targ_df, metrics)
+        plt.show(block=True)
 
 
 if __name__ == '__main__':

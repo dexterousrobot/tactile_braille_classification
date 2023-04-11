@@ -1,6 +1,7 @@
 import numpy as np
-import pandas as pd
 import torch
+
+from sklearn.metrics import confusion_matrix
 
 
 class LabelEncoder:
@@ -35,7 +36,21 @@ class LabelEncoder:
             'label': np.array(self.target_label_names)[ids]
         }
 
-    def calc_batch_metrics(self, labels, predictions):
+    def print_metrics(self, metrics):
+        """
+        Formatted print of metrics given by calc_metrics.
+        """
+        conf_mat = metrics['conf_mat']
+        print('Accuracy: ')
+        print({key: val for key, val in zip(self.target_label_names, np.diag(conf_mat))})
+
+    def write_metrics(self, writer, metrics, epoch, mode='val'):
+        """
+        Write metrics given by calc_metrics to tensorboard.
+        """
+        pass
+
+    def calc_metrics(self, labels, predictions):
         """
         Calculate metrics useful for measuring progress throughout training.
 
@@ -44,40 +59,15 @@ class LabelEncoder:
                 'metric': np.array()
             }
         """
-        err_df = self.err_metric(labels, predictions)
-        acc_df = self.acc_metric(err_df)
-        return err_df, acc_df
+        conf_mat = self.acc_metric(labels, predictions)
+        metrics = {
+            'conf_mat': conf_mat
+        }
+        return metrics
 
-    def err_metric(self, labels, predictions):
+    def acc_metric(self, labels, predictions):
         """
-        Error metric for classification problem, returns dict of errors.
+        Accuracy metric for classification problem.
         """
-        err_df = pd.DataFrame(columns=self.target_label_names)
-        items = zip(labels['label'], predictions['label'])
-
-        for label_name in self.target_label_names:
-            correct = [pred == label_name and lab == label_name for lab, pred in items]
-            err_df[label_name] = correct
-
-        return err_df
-
-    def acc_metric(self, err_df):
-        """
-        Accuracy metric for classification problem, counting the number of predictions within a tolerance.
-        """
-
-        batch_size = err_df.shape[0]
-        acc_df = pd.DataFrame(columns=[*self.target_label_names, 'overall_acc'])
-        overall_correct = np.ones(batch_size, dtype=bool)
-
-        for label_name, tolerence in zip(self.target_label_names, self.tolerences):
-            abs_err = err_df[label_name]
-            correct = (abs_err < tolerence)
-
-            overall_correct = overall_correct & correct
-            acc_df[label_name] = correct.astype(np.float32)
-
-        # count where all predictions are correct for overall accuracy
-        acc_df['overall_acc'] = overall_correct.astype(np.float32)
-
-        return acc_df
+        conf_mat = confusion_matrix(predictions['id'], labels['id'])
+        return conf_mat.astype('float') / (conf_mat.sum(axis=1)[:, np.newaxis] + 1e-8)

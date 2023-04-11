@@ -3,7 +3,7 @@ python evaluate_model.py -m simple_cnn -t arrows
 """
 import os
 import itertools as it
-import numpy as np
+import pandas as pd
 from torch.autograd import Variable
 import torch
 
@@ -35,32 +35,37 @@ def evaluate_model(
     )
 
     # complete dateframe of predictions and targets
-    len_gen = generator.__len__()
-    pred_arr = np.zeros([len_gen*learning_params['batch_size']])
-    targ_arr = np.zeros([len_gen*learning_params['batch_size']])
-    index = 0
+    pred_df = pd.DataFrame()
+    targ_df = pd.DataFrame()
 
     for batch in loader:
 
         # get inputs
-        inputs, targ_dict = batch['images'], batch['labels']
+        inputs, labels_dict = batch['images'], batch['labels']
 
         # wrap them in a Variable object
         inputs = Variable(inputs).float().to(device)
 
         # forward pass
         outputs = model(inputs)
-        pred_dict = label_encoder.decode_label(outputs)
 
-        # count correct for accuracy metric
-        for i in range(len(pred_dict['id'])):
-            pred_arr[index] = pred_dict['id'][i]
-            targ_arr[index] = targ_dict['id'][i]
-            index += 1
+        # decode predictions into label
+        predictions_dict = label_encoder.decode_label(outputs)
+
+        # append predictions and labels to dataframes
+        batch_pred_df = pd.DataFrame.from_dict(predictions_dict)
+        batch_targ_df = pd.DataFrame.from_dict(labels_dict)
+        pred_df = pd.concat([pred_df, batch_pred_df])
+        targ_df = pd.concat([targ_df, batch_targ_df])
+
+    # reset indices to be 0 -> test set size
+    pred_df = pred_df.reset_index(drop=True).fillna(0.0)
+    targ_df = targ_df.reset_index(drop=True).fillna(0.0)
+    metrics = label_encoder.calc_metrics(pred_df, targ_df)
 
     # plot full error graph
     error_plotter.final_plot(
-        pred_arr, targ_arr
+        pred_df, targ_df, metrics
     )
 
 

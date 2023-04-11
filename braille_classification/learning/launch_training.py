@@ -8,8 +8,7 @@ from tactile_data.braille_classification import BASE_DATA_PATH, BASE_MODEL_PATH
 from tactile_data.utils_data import make_dir
 from tactile_learning.supervised.image_generator import ImageDataGenerator
 from tactile_learning.supervised.models import create_model
-# from tactile_learning.supervised.train_model_w_metrics import train_model_w_metrics
-from tactile_learning.supervised.simple_train_model import simple_train_model
+from tactile_learning.supervised.train_model_w_metrics import train_model_w_metrics
 from tactile_learning.utils.utils_learning import seed_everything
 
 from braille_classification.learning.evaluate_model import evaluate_model
@@ -83,36 +82,26 @@ def launch():
             **preproc_params['image_processing']
         )
 
-        simple_train_model(
-            'classification',
-            model,
-            label_encoder,
-            train_generator,
-            val_generator,
-            learning_params,
-            save_dir,
-            device=args.device
-        )
-
         # create plotter of classification errors
         error_plotter = ClassErrorPlotter(
             task_params['label_names'],
             save_dir,
             name='error_plot.png',
-            # plot_during_training=True
+            plot_during_training=False
         )
 
-        # train_model_w_metrics(
-        #     model,
-        #     label_encoder,
-        #     train_generator,
-        #     val_generator,
-        #     learning_params,
-        #     save_dir,
-        #     error_plotter=error_plotter,
-        #     calculate_train_metrics=False,
-        #     device=args.device
-        # )
+        train_model_w_metrics(
+            prediction_mode='classification',
+            model=model,
+            label_encoder=label_encoder,
+            train_generator=train_generator,
+            val_generator=val_generator,
+            learning_params=learning_params,
+            save_dir=save_dir,
+            error_plotter=error_plotter,
+            calculate_train_metrics=False,
+            device=args.device
+        )
 
         # perform a final evaluation using the last model
         error_plotter.name = 'error_plot_final.png'
