@@ -1,10 +1,6 @@
-Metadata-Version: 1.0
+Metadata-Version: 2.1
 Name: braille-classification
 Version: 0.0.1
 Summary: Classifying braille characters from tactile imprint.
-Home-page: UNKNOWN
 Author: Alex Church
 Author-email: alex.church@bristol.ac.uk
-License: UNKNOWN
-Description: UNKNOWN
-Platform: UNKNOWN
