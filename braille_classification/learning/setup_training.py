@@ -1,15 +1,26 @@
 import os
 import shutil
-import numpy as np
 
-from tactile_data.utils_data import save_json_obj
+from tactile_data.utils import save_json_obj
+from braille_classification.collect_data.setup_collect_data import KEY_LABEL_NAMES
 
 
-def csv_row_to_label(row):
+def csv_row_to_label_alphabet(row):
     return {
-        'id': np.array(row['obj_id'] - 1),
-        'label': row['obj_lbl'],
+        'id': KEY_LABEL_NAMES[5:].index(row['object_label']),
+        'label': row['object_label'],
     }
+
+def csv_row_to_label_arrows(row):
+    return {
+        'id': KEY_LABEL_NAMES[:5].index(row['object_label']),
+        'label': row['object_label'],
+    }
+
+csv_row_to_label = {
+    'alphabet': csv_row_to_label_alphabet,
+    'arrows': csv_row_to_label_arrows,
+}
 
 
 def setup_learning(save_dir=None):
@@ -17,7 +28,7 @@ def setup_learning(save_dir=None):
     learning_params = {
         'seed': 42,
         'batch_size': 64,
-        'epochs': 10,
+        'epochs': 20,
         'lr': 1e-4,
         'lr_factor': 0.5,
         'lr_patience': 10,

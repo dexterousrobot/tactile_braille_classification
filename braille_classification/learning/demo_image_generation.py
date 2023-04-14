@@ -1,12 +1,10 @@
 import os
 
-from braille_classification.utils.parse_args import parse_args
-from braille_classification.learning.setup_training import csv_row_to_label
-from braille_classification.learning.setup_training import setup_learning
-
+from tactile_data.braille_classification import BASE_DATA_PATH
 from tactile_learning.supervised.image_generator import demo_image_generation
 
-from tactile_data.braille_classification import BASE_DATA_PATH
+from braille_classification.learning.setup_training import setup_learning, csv_row_to_label
+from braille_classification.utils.parse_args import parse_args
 
 
 if __name__ == '__main__':

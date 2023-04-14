@@ -8,13 +8,13 @@ from torch.autograd import Variable
 import torch
 
 from tactile_data.braille_classification import BASE_DATA_PATH, BASE_MODEL_PATH
-from tactile_data.utils_data import load_json_obj
+from tactile_data.utils import load_json_obj
 from tactile_learning.supervised.models import create_model
 from tactile_learning.supervised.image_generator import ImageDataGenerator
 from tactile_learning.utils.utils_plots import ClassificationPlotter
 
 from braille_classification.learning.setup_training import setup_task, csv_row_to_label
-from braille_classification.learning.utils_learning import LabelEncoder
+from braille_classification.utils.label_encoder import LabelEncoder
 from braille_classification.utils.parse_args import parse_args
 
 

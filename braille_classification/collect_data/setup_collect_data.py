@@ -1,15 +1,13 @@
 import os
 
-from tactile_data.utils_data import save_json_obj
+from tactile_data.utils import save_json_obj
 
-POSE_LABEL_NAMES = ["x", "y", "z", "Rx", "Ry", "Rz"]
-SHEAR_LABEL_NAMES = ["dx", "dy", "dz", "dRx", "dRy", "dRz"]
-ARROW_LABEL_NAMES = ['UP', 'DOWN', 'LEFT', 'RIGHT', 'NONE']
-ALPHABET_LABEL_NAMES = [
+KEY_LABEL_NAMES = [
+    'UP', 'DOWN', 'LEFT', 'RIGHT', 'NONE',
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
     'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
     'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-    'SPACE', 'NONE',
+    'SPACE', 'NONE'
 ]
 
 
@@ -49,26 +47,31 @@ def setup_collect_params(robot, task, save_dir=None):
         'alphabet': [(-1.5, -1.5, 1, -5, -5, -5), (1.5, 1.5, 5, 5, 5, 5)],
     }
 
-    shear_lims_dict = {
-        'sim':     [(0, 0, 0, 0, 0, 0),   (0, 0, 0, 0, 0, 0)],
-    }
+    # WARNING: urdf does not follow this pattern exactly due to auto placement of STLs.
+    # This can introduce some bias in the data due to a slight offset in the placement of the key.
 
     if task == 'arrows':
-        obj_label_names = ARROW_LABEL_NAMES
-    elif task == 'alphabet':
-        obj_label_names = ALPHABET_LABEL_NAMES
+        object_poses_dict = {
+            label: (-17.5*2, 17.5*(6+i%10), 0, 0, 0, 0) 
+                for i, label in enumerate(KEY_LABEL_NAMES[:5])
+        }
+
+    if task == 'alphabet':
+        object_poses_dict = {
+            label: (-17.5*(i//10), 17.5*(i%10), 0, 0, 0, 0) 
+                for i, label in enumerate(KEY_LABEL_NAMES[5:])
+        }
+        object_poses_dict['SPACE'] = (-17.5*3, 17.5*3, 0, 0, 0, 0)
+        
+    object_poses_dict['NONE'] = (-17.5*3, 17.5*8, -10, 0, 0, 0)
 
     collect_params = {
-        'obj_label_names': obj_label_names,
-        'pose_label_names': POSE_LABEL_NAMES,
+        'object_poses': object_poses_dict,
         'pose_llims': pose_lims_dict[task][0],
         'pose_ulims': pose_lims_dict[task][1],
-        'shear_label_names': SHEAR_LABEL_NAMES,
-        'shear_llims': shear_lims_dict[robot][0],
-        'shear_ulims': shear_lims_dict[robot][1],
         'sample_disk': True,
         'sort': False,
-        'seed': 0,
+        'seed': 0
     }
 
     if robot == 'sim':
@@ -80,24 +83,28 @@ def setup_collect_params(robot, task, save_dir=None):
     return collect_params
 
 
-def setup_env_params(robot, task, save_dir=None):
+def setup_env_params(robot, save_dir=None):
 
-    # TODO: Combining TCP and workframe is confusing...
     work_frame_dict = {
-        'sim_arrows':   [(593, -7, 25, -180, 0, 0),     (0, 0, -85, 0, 0, 90)],
-        'sim_alphabet': [(593, -7, 25, -180, 0, 0),     (0, 0, -85, 0, 0, 90)],
+        'sim':   (593, -7, 25, -180, 0, 0),
     }
+
+    tcp_pose_dict = {
+        'cr':    (0, 0, -70, 0, 0, 0),
+        'mg400': (0, 0, -50, 0, 0, 0),
+        'sim':   (0, 0, -85, 0, 0, 90),
+    } ## SHOULD BE ROBOT + SENSOR 
 
     env_params = {
         'robot': robot,
         'stim_name': 'static_keyboard',
-        'speed': float("inf"),
-        'work_frame': work_frame_dict[robot + '_' + task][0],
-        'tcp_pose': work_frame_dict[robot + '_' + task][1],
+        'work_frame': work_frame_dict[robot],
+        'tcp_pose': tcp_pose_dict[robot],
         'show_gui': True
     }
 
     if robot == 'sim':
+        env_params['speed'] = float('inf')
         env_params['stim_pose'] = (600, 0, 0, 0, 0, 0)
 
     if save_dir:
@@ -109,7 +116,7 @@ def setup_env_params(robot, task, save_dir=None):
 def setup_collect_data(robot, sensor, task, save_dir=None):
     collect_params = setup_collect_params(robot, task, save_dir)
     sensor_params = setup_sensor_params(robot, sensor, save_dir)
-    env_params = setup_env_params(robot, task, save_dir)
+    env_params = setup_env_params(robot, save_dir)
     return collect_params, env_params, sensor_params
 
 
