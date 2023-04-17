@@ -115,7 +115,7 @@ if __name__ == "__main__":
         sensor='tactip',
         tasks=['alphabet'],
         models=['simple_cnn'],
-        version=['data_temp'],
+        # version=['data_temp'],
         device='cuda'
     )
 

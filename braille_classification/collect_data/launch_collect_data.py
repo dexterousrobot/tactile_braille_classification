@@ -77,13 +77,13 @@ if __name__ == "__main__":
         robot='sim',
         sensor='tactip',
         tasks=['arrows', 'alphabet'],
-        version=['temp']
+        # version=['temp']
     )
 
     data_params = {
-        'data': 25,  # per key
-        # 'train': 16,  # per key
-        # 'val': 4,  # per key
+        # 'data': 25,  # per key
+        'train': 100,  # per key
+        'val': 50,  # per key
     }
 
     process_params = {
@@ -93,5 +93,5 @@ if __name__ == "__main__":
         "bbox": (12, 12, 240, 240)  # sim (12, 12, 240, 240) # midi (10, 10, 430, 430) # mini (10, 10, 310, 310)
     }
 
-    # launch(args, data_params)
-    process(args, data_params, process_params, split=0.8)
+    launch(args, data_params)
+    process(args, data_params, process_params)#, split=0.8)

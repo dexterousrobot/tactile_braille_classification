@@ -43,8 +43,8 @@ def setup_sensor_params(robot, sensor, save_dir=None):
 def setup_collect_params(robot, task, save_dir=None):
 
     pose_lims_dict = {
-        'arrows': [(-2.5, -2.5, 1, -5, -5, -10), (2.5, 2.5, 5, 5, 5, 10)],
-        'alphabet': [(-1.5, -1.5, 1, -5, -5, -5), (1.5, 1.5, 5, 5, 5, 5)],
+        'arrows': [(-2.5, -2.5, 3, 0, 0, -10), (2.5, 2.5, 5, 0, 0, 10)],
+        'alphabet': [(-2.5, -2.5, 3, 0, 0, -10), (2.5, 2.5, 5, 0, 0, 10)],
     }
 
     # WARNING: urdf does not follow this pattern exactly due to auto placement of STLs.
@@ -70,12 +70,9 @@ def setup_collect_params(robot, task, save_dir=None):
         'pose_llims': pose_lims_dict[task][0],
         'pose_ulims': pose_lims_dict[task][1],
         'sample_disk': True,
-        'sort': False,
+        'sort': True,
         'seed': 0
     }
-
-    if robot == 'sim':
-        collect_params['sort'] = 'Rz'
 
     if save_dir:
         save_json_obj(collect_params, os.path.join(save_dir, 'collect_params'))
