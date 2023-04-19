@@ -13,24 +13,26 @@ if __name__ == '__main__':
         robot='sim',
         sensor='tactip',
         tasks=['arrows'],
-        version=['']
+        data_version=['temp']
     )
 
     output_dir = '_'.join([args.robot, args.sensor])
-    train_dir_name = '_'.join(filter(None, ["train", *args.version]))
-    val_dir_name = '_'.join(filter(None, ["val", *args.version]))
+    train_dir_name = '_'.join(filter(None, ["train", *args.data_version]))
+    val_dir_name = '_'.join(filter(None, ["val", *args.data_version]))
 
     learning_params, preproc_params = setup_learning()
 
-    data_dirs = [
-        *[os.path.join(BASE_DATA_PATH, output_dir, task, train_dir_name) for task in args.tasks],
-        *[os.path.join(BASE_DATA_PATH, output_dir, task, val_dir_name) for task in args.tasks]
-    ]
+    for args.task in args.tasks:
 
-    demo_image_generation(
-        data_dirs,
-        csv_row_to_label,
-        learning_params,
-        preproc_params['image_processing'],
-        preproc_params['augmentation']
-    )
+        data_dirs = [
+            os.path.join(BASE_DATA_PATH, output_dir, args.task, train_dir_name),
+            os.path.join(BASE_DATA_PATH, output_dir, args.task, val_dir_name)
+        ]
+
+        demo_image_generation(
+            data_dirs,
+            csv_row_to_label[args.task],
+            learning_params,
+            preproc_params['image_processing'],
+            preproc_params['augmentation']
+        )

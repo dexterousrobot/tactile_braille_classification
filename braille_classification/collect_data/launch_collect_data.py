@@ -19,7 +19,7 @@ def launch(args, data_params):
     for args.task in args.tasks:
         for data_dir_name, num_poses in data_params.items():
 
-            data_dir_name = '_'.join(filter(None, [data_dir_name, *args.version]))
+            data_dir_name = '_'.join(filter(None, [data_dir_name, *args.data_version]))
             output_dir = '_'.join([args.robot, args.sensor])
 
             # setup save dir
@@ -65,7 +65,7 @@ def process(args, data_params, process_params, split=None):
 
     for args.task in args.tasks:
             path = os.path.join(BASE_DATA_PATH, output_dir, args.task)
-            dir_names = ['_'.join(filter(None, [dir, *args.version])) for dir in data_params]
+            dir_names = ['_'.join(filter(None, [dir, *args.data_version])) for dir in data_params]
 
             dir_names = split_data(path, dir_names, split)
             process_data(path, dir_names, process_params)
@@ -77,7 +77,7 @@ if __name__ == "__main__":
         robot='sim',
         sensor='tactip',
         tasks=['arrows', 'alphabet'],
-        # version=['temp']
+        data_version=['temp']
     )
 
     data_params = {
@@ -87,10 +87,7 @@ if __name__ == "__main__":
     }
 
     process_params = {
-        # 'thresh': True,
-        'dims': (128, 128),
-        # "circle_mask_radius": 220,
-        "bbox": (12, 12, 240, 240)  # sim (12, 12, 240, 240) # midi (10, 10, 430, 430) # mini (10, 10, 310, 310)
+        "bbox": (12, 12, 240, 240)  # sim (12, 12, 240, 240)
     }
 
     launch(args, data_params)
