@@ -12,11 +12,13 @@ def csv_row_to_label_arrows(row):
         'label': row['object_label'],
     }
 
+
 def csv_row_to_label_alphabet(row):
     return {
         'id': KEY_LABEL_NAMES[5:].index(row['object_label']),
         'label': row['object_label'],
     }
+
 
 csv_row_to_label = {
     'alphabet': csv_row_to_label_alphabet,
@@ -105,7 +107,6 @@ def setup_model(model_type, save_dir):
                 'dropout': 0.0,
             }
         }
-        
 
     elif 'resnet' in model_type:
         model_params = {

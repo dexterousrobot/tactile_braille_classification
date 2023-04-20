@@ -64,11 +64,11 @@ def process(args, data_params, process_params, split=None):
     output_dir = '_'.join([args.robot, args.sensor])
 
     for args.task in args.tasks:
-            path = os.path.join(BASE_DATA_PATH, output_dir, args.task)
-            dir_names = ['_'.join(filter(None, [dir, *args.data_version])) for dir in data_params]
+        path = os.path.join(BASE_DATA_PATH, output_dir, args.task)
+        dir_names = ['_'.join(filter(None, [dir, *args.data_version])) for dir in data_params]
 
-            dir_names = split_data(path, dir_names, split)
-            process_data(path, dir_names, process_params)
+        dir_names = split_data(path, dir_names, split)
+        process_data(path, dir_names, process_params)
 
 
 if __name__ == "__main__":
@@ -91,4 +91,4 @@ if __name__ == "__main__":
     }
 
     launch(args, data_params)
-    process(args, data_params, process_params)#, split=0.8)
+    process(args, data_params, process_params)  # , split=0.8)
