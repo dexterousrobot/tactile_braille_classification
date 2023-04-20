@@ -13,20 +13,16 @@ if __name__ == '__main__':
         robot='sim',
         sensor='tactip',
         tasks=['arrows'],
-        data_version=['temp']
+        data_dirs=['train_temp', 'val_temp']
     )
 
     output_dir = '_'.join([args.robot, args.sensor])
-    train_dir_name = '_'.join(filter(None, ["train", *args.data_version]))
-    val_dir_name = '_'.join(filter(None, ["val", *args.data_version]))
-
     learning_params, preproc_params = setup_learning()
 
     for args.task in args.tasks:
 
         data_dirs = [
-            os.path.join(BASE_DATA_PATH, output_dir, args.task, train_dir_name),
-            os.path.join(BASE_DATA_PATH, output_dir, args.task, val_dir_name)
+            os.path.join(BASE_DATA_PATH, output_dir, args.task, dir) for dir in args.data_dirs
         ]
 
         demo_image_generation(

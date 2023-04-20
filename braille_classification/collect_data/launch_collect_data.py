@@ -14,16 +14,15 @@ from braille_classification.collect_data.setup_collect_data import setup_collect
 from braille_classification.utils.parse_args import parse_args
 
 
-def launch(args, data_params):
+def launch(args):
+
+    output_dir = '_'.join([args.robot, args.sensor])
 
     for args.task in args.tasks:
-        for data_dir_name, num_poses in data_params.items():
-
-            data_dir_name = '_'.join(filter(None, [data_dir_name, *args.data_version]))
-            output_dir = '_'.join([args.robot, args.sensor])
+        for args.data_dir, args.data_sample_num in zip(args.data_dirs, args.data_sample_nums):
 
             # setup save dir
-            save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.task, data_dir_name)
+            save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.task, args.data_dir)
             image_dir = os.path.join(save_dir, "images")
             make_dir(save_dir)
             make_dir(image_dir)
@@ -45,7 +44,7 @@ def launch(args, data_params):
             # setup targets to collect
             target_df = setup_targets(
                 collect_params,
-                num_poses,
+                args.data_sample_num,
                 save_dir
             )
 
@@ -59,16 +58,15 @@ def launch(args, data_params):
             )
 
 
-def process(args, data_params, process_params, split=None):
+def process(args, process_params, split=None):
 
     output_dir = '_'.join([args.robot, args.sensor])
 
     for args.task in args.tasks:
         path = os.path.join(BASE_DATA_PATH, output_dir, args.task)
-        dir_names = ['_'.join(filter(None, [dir, *args.data_version])) for dir in data_params]
 
-        dir_names = split_data(path, dir_names, split)
-        process_data(path, dir_names, process_params)
+        data_dirs = split_data(path, args.data_dirs, split)
+        process_data(path, data_dirs, process_params)
 
 
 if __name__ == "__main__":
@@ -76,19 +74,14 @@ if __name__ == "__main__":
     args = parse_args(
         robot='sim',
         sensor='tactip',
-        tasks=['arrows', 'alphabet'],
-        data_version=['temp']
+        tasks=['arrows'],
+        data_dirs = ['train_temp', 'val_temp'],
+        data_sample_nums = [80, 20] # per key
     )
-
-    data_params = {
-        # 'data': 25,  # per key
-        'train': 100,  # per key
-        'val': 50,  # per key
-    }
 
     process_params = {
         "bbox": (12, 12, 240, 240)  # sim (12, 12, 240, 240)
     }
 
-    launch(args, data_params)
-    process(args, data_params, process_params)  # , split=0.8)
+    launch(args)
+    process(args, process_params)#, split=0.8)
