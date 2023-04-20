@@ -1,19 +1,20 @@
 import os
+import glob
 import shutil
 
 from tactile_data.utils import save_json_obj
 from braille_classification.collect_data.setup_collect_data import KEY_LABEL_NAMES
 
 
-def csv_row_to_label_alphabet(row):
-    return {
-        'id': KEY_LABEL_NAMES[5:].index(row['object_label']),
-        'label': row['object_label'],
-    }
-
 def csv_row_to_label_arrows(row):
     return {
         'id': KEY_LABEL_NAMES[:5].index(row['object_label']),
+        'label': row['object_label'],
+    }
+
+def csv_row_to_label_alphabet(row):
+    return {
+        'id': KEY_LABEL_NAMES[5:].index(row['object_label']),
         'label': row['object_label'],
     }
 
@@ -70,50 +71,65 @@ def setup_learning(save_dir=None):
 
 def setup_model(model_type, save_dir):
 
-    model_params = {
-        'model_type': model_type
-    }
-
-    if model_type == 'simple_cnn':
-        model_params['model_kwargs'] = {
+    if 'simple_cnn' in model_type:
+        model_params = {
+            'model_type': 'simple_cnn',
+            'model_kwargs': {
                 'conv_layers': [32, 32, 32, 32],
                 'conv_kernel_sizes': [11, 9, 7, 5],
                 'fc_layers': [512, 512],
                 'activation': 'relu',
                 'dropout': 0.0,
                 'apply_batchnorm': True,
+            }
         }
 
-    elif model_type == 'posenet_cnn':
-        model_params['model_kwargs'] = {
+    elif 'posenet_cnn' in model_type:
+        model_params = {
+            'model_type': 'posenet_cnn',
+            'model_kwargs': {
                 'conv_layers': [256, 256, 256, 256, 256],
                 'conv_kernel_sizes': [3, 3, 3, 3, 3],
                 'fc_layers': [64],
                 'activation': 'elu',
                 'dropout': 0.0,
                 'apply_batchnorm': True,
+            }
         }
 
-    elif model_type == 'nature_cnn':
-        model_params['model_kwargs'] = {
-            'fc_layers': [512, 512],
-            'dropout': 0.0,
+    elif 'nature_cnn' in model_type:
+        model_params = {
+            'model_type': 'nature_cnn',
+            'model_kwargs': {
+                'fc_layers': [512, 512],
+                'dropout': 0.0,
+            }
+        }
+        
+
+    elif 'resnet' in model_type:
+        model_params = {
+            'model_type': 'resnet',
+            'model_kwargs': {
+                'layers': [2, 2, 2, 2]
+            }
         }
 
-    elif model_type == 'resnet':
-        model_params['model_kwargs'] = {
-            'layers': [2, 2, 2, 2],
+    elif 'vit' in model_type:
+        model_params = {
+            'model_type': 'vit',
+            'model_kwargs': {
+                'patch_size': 32,
+                'dim': 128,
+                'depth': 6,
+                'heads': 8,
+                'mlp_dim': 512,
+                'pool': 'cls',  # for classification
+            }
         }
 
-    elif model_type == 'vit':
-        model_params['model_kwargs'] = {
-            'patch_size': 32,
-            'dim': 128,
-            'depth': 6,
-            'heads': 8,
-            'mlp_dim': 512,
-            'pool': 'cls',  # for classification
-        }
+    else:
+        raise ValueError(f'Incorrect model_type specified: {model_type}')
 
     # save parameters
     save_json_obj(model_params, os.path.join(save_dir, 'model_params'))
@@ -127,11 +143,8 @@ def setup_task(task_name, save_dir=None):
     """
 
     label_names_dict = {
-        'arrows': ['UP', 'DOWN', 'LEFT', 'RIGHT', 'NONE'],
-        'alphabet': ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',
-                     'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L',
-                     'Z', 'X', 'C', 'V', 'B', 'N', 'M',
-                     'SPACE', 'NONE']
+        'arrows': KEY_LABEL_NAMES[5:],
+        'alphabet': KEY_LABEL_NAMES[5:]
     }
 
     task_params = {
@@ -153,9 +166,8 @@ def setup_training(model_type, task, data_dirs, save_dir=None):
 
     # retain data parameters
     if save_dir:
-        shutil.copy(os.path.join(data_dirs[0], 'collect_params.json'), save_dir)
-        shutil.copy(os.path.join(data_dirs[0], 'env_params.json'), save_dir)
-        shutil.copy(os.path.join(data_dirs[0], 'sensor_params.json'), save_dir)
+        for file_name in glob.glob(os.path.join(data_dirs[0], '*_params.json')):
+            shutil.copy(file_name, save_dir)
 
         # if there is sensor process params, overwrite
         sensor_proc_params_file = os.path.join(data_dirs[0], 'sensor_process_params.json')

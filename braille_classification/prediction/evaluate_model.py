@@ -13,7 +13,7 @@ from tactile_learning.supervised.models import create_model
 from tactile_learning.supervised.image_generator import ImageDataGenerator
 from tactile_learning.utils.utils_plots import ClassificationPlotter
 
-from braille_classification.learning.setup_training import setup_task, csv_row_to_label
+from braille_classification.learning.setup_training import csv_row_to_label
 from braille_classification.utils.label_encoder import LabelEncoder
 from braille_classification.utils.parse_args import parse_args
 
@@ -69,43 +69,29 @@ def evaluate_model(
     )
 
 
-if __name__ == "__main__":
-
-    args = parse_args(
-        robot='sim',
-        sensor='tactip',
-        tasks=['arrows'],
-        models=['simple_cnn'],
-        version=[''],
-        device='cuda'
-    )
-
-    model_version = ''
+def evaluation(args):
 
     # test the trained networks
     for args.task, args.model in it.product(args.tasks, args.models):
 
         output_dir = '_'.join([args.robot, args.sensor])
-        val_dir_name = '_'.join(filter(None, ["val", *args.version]))
-        model_dir_name = '_'.join([args.model, *args.version])
+        val_dir_name = '_'.join(filter(None, ["val", *args.data_version]))
 
         val_data_dirs = [
             os.path.join(BASE_DATA_PATH, output_dir, args.task, val_dir_name)
         ]
 
         # set save dir
-        model_dir = os.path.join(BASE_MODEL_PATH, output_dir, args.task, model_dir_name)
+        model_dir = os.path.join(BASE_MODEL_PATH, output_dir, args.task, args.model)
 
         # setup parameters
         learning_params = load_json_obj(os.path.join(model_dir, 'learning_params'))
         model_params = load_json_obj(os.path.join(model_dir, 'model_params'))
+        task_params = load_json_obj(os.path.join(model_dir, 'task_params'))
         preproc_params = load_json_obj(os.path.join(model_dir, 'preproc_params'))
 
-        # create the encoder/decoder for labels
-        task_params = setup_task(args.task)
+        # create the label encoder/decoder and error plotter
         label_encoder = LabelEncoder(task_params['label_names'], args.device)
-
-        # create plotter of classificaiton
         error_plotter = ClassificationPlotter(task_params['label_names'], model_dir, name='error_plot_best.png')
 
         # create the model
@@ -121,7 +107,7 @@ if __name__ == "__main__":
 
         val_generator = ImageDataGenerator(
             val_data_dirs,
-            csv_row_to_label,
+            csv_row_to_label[args.task],
             **preproc_params['image_processing']
         )
 
@@ -133,3 +119,17 @@ if __name__ == "__main__":
             error_plotter,
             device=args.device
         )
+
+
+if __name__ == "__main__":
+
+    args = parse_args(
+        robot='sim',
+        sensor='tactip',
+        tasks=['alphabet'],
+        models=['simple_cnn_temp'],
+        data_version=['temp'],
+        device='cuda'
+    )
+
+    evaluation(args)

@@ -6,7 +6,7 @@ def parse_args(
         sensor='tactip',
         tasks=['arrows'],
         models=['simple_cnn'],
-        version=[],
+        data_version=[],
         device='cuda'
 ):
     parser = argparse.ArgumentParser()
@@ -36,10 +36,10 @@ def parse_args(
         default=models
     )
     parser.add_argument(
-        '-v', '--version',
+        '-dv', '--data_version',
         type=str,
-        help="Choose version from [[], 'test'].",
-        default=version
+        help="Choose version.",
+        default=data_version
     )
     parser.add_argument(
         '-d', '--device',

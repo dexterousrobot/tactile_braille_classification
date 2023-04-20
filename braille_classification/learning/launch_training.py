@@ -8,7 +8,7 @@ from tactile_data.braille_classification import BASE_DATA_PATH, BASE_MODEL_PATH
 from tactile_data.utils import make_dir
 from tactile_learning.supervised.image_generator import ImageDataGenerator
 from tactile_learning.supervised.models import create_model
-from tactile_learning.supervised.train_model_w_metrics import train_model_w_metrics
+from tactile_learning.supervised.train_model import train_model
 from tactile_learning.utils.utils_learning import seed_everything
 from tactile_learning.utils.utils_plots import ClassificationPlotter
 
@@ -21,12 +21,10 @@ from braille_classification.utils.parse_args import parse_args
 def launch(args):
 
     output_dir = '_'.join([args.robot, args.sensor])
-    train_dir_name = '_'.join(filter(None, ["train", *args.version]))
-    val_dir_name = '_'.join(filter(None, ["val", *args.version]))
+    train_dir_name = '_'.join(filter(None, ["train", *args.data_version]))
+    val_dir_name = '_'.join(filter(None, ["val", *args.data_version]))
 
     for args.task, args.model in it.product(args.tasks, args.models):
-
-        model_dir_name = '_'.join([args.model, *args.version])
 
         # data dirs - list of directories combined in generator
         train_data_dirs = [
@@ -37,7 +35,7 @@ def launch(args):
         ]
 
         # setup save dir
-        save_dir = os.path.join(BASE_MODEL_PATH, output_dir, args.task, model_dir_name)
+        save_dir = os.path.join(BASE_MODEL_PATH, output_dir, args.task, args.model)
         make_dir(save_dir)
 
         # setup parameters
@@ -46,19 +44,6 @@ def launch(args):
             args.task,
             train_data_dirs,
             save_dir
-        )
-
-        # create the encoder/decoder for labels
-        label_encoder = LabelEncoder(task_params['label_names'], args.device)
-
-        # create the model
-        seed_everything(learning_params['seed'])
-        model = create_model(
-            in_dim=preproc_params['image_processing']['dims'],
-            in_channels=1,
-            out_dim=label_encoder.out_dim,
-            model_params=model_params,
-            device=args.device
         )
 
         # set generators and loaders
@@ -73,15 +58,21 @@ def launch(args):
             **preproc_params['image_processing']
         )
 
-        # create plotter of classification errors
-        error_plotter = ClassificationPlotter(
-            task_params['label_names'],
-            save_dir,
-            name='error_plot.png',
-            plot_during_training=False
+        # create the label encoder/decoder and plotter
+        label_encoder = LabelEncoder(task_params['label_names'], args.device)
+        error_plotter = ClassificationPlotter(task_params['label_names'], save_dir, final_only=False)
+
+        # create the model
+        seed_everything(learning_params['seed'])
+        model = create_model(
+            in_dim=preproc_params['image_processing']['dims'],
+            in_channels=1,
+            out_dim=label_encoder.out_dim,
+            model_params=model_params,
+            device=args.device
         )
 
-        train_model_w_metrics(
+        train_model(
             prediction_mode='classification',
             model=model,
             label_encoder=label_encoder,
@@ -90,12 +81,8 @@ def launch(args):
             learning_params=learning_params,
             save_dir=save_dir,
             error_plotter=error_plotter,
-            calculate_train_metrics=False,
             device=args.device
         )
-
-        # perform a final evaluation using the last model
-        error_plotter.name = 'error_plot_final.png'
 
         # run evaluation
         evaluate_model(
@@ -114,8 +101,8 @@ if __name__ == "__main__":
         robot='sim',
         sensor='tactip',
         tasks=['alphabet'],
-        models=['simple_cnn'],
-        version=['data_temp'],
+        models=['simple_cnn_temp'],
+        data_version=['temp'],
         device='cuda'
     )
 
