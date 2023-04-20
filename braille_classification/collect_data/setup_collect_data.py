@@ -52,17 +52,17 @@ def setup_collect_params(robot, task, save_dir=None):
 
     if task == 'arrows':
         object_poses_dict = {
-            label: (-17.5*2, 17.5*(6+i%10), 0, 0, 0, 0) 
-                for i, label in enumerate(KEY_LABEL_NAMES[:5])
+            label: (-17.5*2, 17.5*(6+i % 10), 0, 0, 0, 0)
+            for i, label in enumerate(KEY_LABEL_NAMES[:5])
         }
 
     if task == 'alphabet':
         object_poses_dict = {
-            label: (-17.5*(i//10), 17.5*(i%10), 0, 0, 0, 0) 
-                for i, label in enumerate(KEY_LABEL_NAMES[5:])
+            label: (-17.5*(i//10), 17.5*(i % 10), 0, 0, 0, 0)
+            for i, label in enumerate(KEY_LABEL_NAMES[5:])
         }
         object_poses_dict['SPACE'] = (-17.5*3, 17.5*3, 0, 0, 0, 0)
-        
+
     object_poses_dict['NONE'] = (-17.5*3, 17.5*8, -10, 0, 0, 0)
 
     collect_params = {
@@ -90,7 +90,7 @@ def setup_env_params(robot, save_dir=None):
         'cr':    (0, 0, -70, 0, 0, 0),
         'mg400': (0, 0, -50, 0, 0, 0),
         'sim':   (0, 0, -85, 0, 0, 90),
-    } ## SHOULD BE ROBOT + SENSOR 
+    }  # SHOULD BE ROBOT + SENSOR
 
     env_params = {
         'robot': robot,

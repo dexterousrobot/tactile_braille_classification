@@ -63,10 +63,10 @@ def process(args, process_params, split=None):
     output_dir = '_'.join([args.robot, args.sensor])
 
     for args.task in args.tasks:
-            path = os.path.join(BASE_DATA_PATH, output_dir, args.task)
+        path = os.path.join(BASE_DATA_PATH, output_dir, args.task)
 
-            data_dirs = split_data(path, args.data_dirs, split)
-            process_data(path, data_dirs, process_params)
+        data_dirs = split_data(path, args.data_dirs, split)
+        process_data(path, data_dirs, process_params)
 
 
 if __name__ == "__main__":
