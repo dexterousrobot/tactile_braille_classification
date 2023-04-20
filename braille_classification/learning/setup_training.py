@@ -71,62 +71,50 @@ def setup_learning(save_dir=None):
 
 def setup_model(model_type, save_dir):
 
-    if 'simple_cnn' in model_type:
-        model_params = {
-            'model_type': 'simple_cnn',
-            'model_kwargs': {
-                'conv_layers': [32, 32, 32, 32],
-                'conv_kernel_sizes': [11, 9, 7, 5],
-                'fc_layers': [512, 512],
-                'activation': 'relu',
-                'dropout': 0.0,
-                'apply_batchnorm': True,
-            }
+    model_params = {
+        'model_type': model_type
+    }
+
+    if model_type == 'simple_cnn':
+        model_params['model_kwargs'] = {
+            'conv_layers': [32, 32, 32, 32],
+            'conv_kernel_sizes': [11, 9, 7, 5],
+            'fc_layers': [512, 512],
+            'activation': 'relu',
+            'dropout': 0.0,
+            'apply_batchnorm': True,
         }
 
-    elif 'posenet_cnn' in model_type:
-        model_params = {
-            'model_type': 'posenet_cnn',
-            'model_kwargs': {
-                'conv_layers': [256, 256, 256, 256, 256],
-                'conv_kernel_sizes': [3, 3, 3, 3, 3],
-                'fc_layers': [64],
-                'activation': 'elu',
-                'dropout': 0.0,
-                'apply_batchnorm': True,
-            }
+    elif model_type == 'posenet_cnn':
+        model_params['model_kwargs'] = {
+            'conv_layers': [256, 256, 256, 256, 256],
+            'conv_kernel_sizes': [3, 3, 3, 3, 3],
+            'fc_layers': [64],
+            'activation': 'elu',
+            'dropout': 0.0,
+            'apply_batchnorm': True,
         }
 
-    elif 'nature_cnn' in model_type:
-        model_params = {
-            'model_type': 'nature_cnn',
-            'model_kwargs': {
-                'fc_layers': [512, 512],
-                'dropout': 0.0,
-            }
-        }
-        
+    elif model_type == 'nature_cnn':
+        model_params['model_kwargs'] = {
+            'fc_layers': [512, 512],
+            'dropout': 0.0,
+        }        
 
-    elif 'resnet' in model_type:
-        model_params = {
-            'model_type': 'resnet',
-            'model_kwargs': {
-                'layers': [2, 2, 2, 2]
-            }
+    elif model_type == 'resnet':
+        model_params['model_kwargs'] = {
+            'layers': [2, 2, 2, 2]
         }
 
-    elif 'vit' in model_type:
-        model_params = {
-            'model_type': 'vit',
-            'model_kwargs': {
-                'patch_size': 32,
-                'dim': 128,
-                'depth': 6,
-                'heads': 8,
-                'mlp_dim': 512,
-                'pool': 'cls',  # for classification
-            }
-        }
+    elif model_type == 'vit':
+        model_params['model_kwargs'] = {
+            'patch_size': 32,
+            'dim': 128,
+            'depth': 6,
+            'heads': 8,
+            'mlp_dim': 512,
+            'pool': 'cls',  # for classification
+        }    
 
     else:
         raise ValueError(f'Incorrect model_type specified: {model_type}')
@@ -143,7 +131,7 @@ def setup_task(task_name, save_dir=None):
     """
 
     label_names_dict = {
-        'arrows': KEY_LABEL_NAMES[5:],
+        'arrows': KEY_LABEL_NAMES[:5],
         'alphabet': KEY_LABEL_NAMES[5:]
     }
 

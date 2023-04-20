@@ -19,7 +19,7 @@ def setup_sensor_params(robot, sensor, save_dir=None):
     }
     sensor_type = 'midi'  # TODO: Fix hardcoded sensor type
 
-    if robot == 'sim':
+    if 'sim' in robot:
         sensor_params = {
             "type": "standard_tactip",
             "image_size": (256, 256),
@@ -100,7 +100,7 @@ def setup_env_params(robot, save_dir=None):
         'show_gui': True
     }
 
-    if robot == 'sim':
+    if 'sim' in robot:
         env_params['speed'] = float('inf')
         env_params['stim_pose'] = (600, 0, 0, 0, 0, 0)
 
