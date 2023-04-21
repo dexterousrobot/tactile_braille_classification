@@ -6,7 +6,7 @@ def parse_args(
         sensor='tactip',
         tasks=['arrows'],
         data_dirs=['train', 'val'],
-        data_sample_nums=[80, 20],
+        sample_nums=[80, 20],
         train_dirs=['train'],
         val_dirs=['val'],
         models=['simple_cnn'],
@@ -40,10 +40,10 @@ def parse_args(
         default=data_dirs
     )
     parser.add_argument(
-        '-n', '--data_sample_nums',
+        '-n', '--sample_nums',
         type=int,
         help="Choose numbers of samples (default [80, 20]).",
-        default=data_sample_nums
+        default=sample_nums
     )
     parser.add_argument(
         '-dt', '--train_dirs',

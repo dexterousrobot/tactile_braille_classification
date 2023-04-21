@@ -24,7 +24,7 @@ def launch(args):
 
     for args.task, args.model in it.product(args.tasks, args.models):
     
-        model_dir_name = '_'.join(filter(None, [args.model, *args.version]))
+        model_dir_name = '_'.join(filter(None, [args.model, *args.model_version]))
 
         # data dirs - list of directories combined in generator
         train_data_dirs = [
