@@ -20,9 +20,17 @@ def csv_row_to_label_alphabet(row):
     }
 
 
+def csv_row_to_label_all(row):
+    return {
+        'id': KEY_LABEL_NAMES.index(row['object_label']),
+        'label': row['object_label'],
+    }
+
+
 csv_row_to_label = {
     'alphabet': csv_row_to_label_alphabet,
     'arrows': csv_row_to_label_arrows,
+    'all': csv_row_to_label_all,
 }
 
 

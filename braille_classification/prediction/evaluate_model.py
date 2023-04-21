@@ -75,14 +75,14 @@ def evaluation(args):
     for args.task, args.model in it.product(args.tasks, args.models):
 
         output_dir = '_'.join([args.robot, args.sensor])
-        val_dir_name = '_'.join(filter(None, ["val", *args.data_version]))
+        model_dir_name = '_'.join(filter(None, [args.model, *args.model_version]))
 
         val_data_dirs = [
-            os.path.join(BASE_DATA_PATH, output_dir, args.task, val_dir_name)
+            os.path.join(BASE_DATA_PATH, output_dir, args.task, dir) for dir in args.val_dirs
         ]
 
         # set save dir
-        model_dir = os.path.join(BASE_MODEL_PATH, output_dir, args.task, args.model)
+        model_dir = os.path.join(BASE_MODEL_PATH, output_dir, args.task, model_dir_name)
 
         # setup parameters
         learning_params = load_json_obj(os.path.join(model_dir, 'learning_params'))
@@ -126,9 +126,10 @@ if __name__ == "__main__":
     args = parse_args(
         robot='sim',
         sensor='tactip',
-        tasks=['alphabet'],
-        models=['simple_cnn_temp'],
-        data_version=['temp'],
+        tasks=['arrows'],
+        val_dirs=['val_temp'],
+        models=['simple_cnn'],
+        model_version=['temp'],
         device='cuda'
     )
 

@@ -1,4 +1,5 @@
 import os
+import itertools as it
 
 from tactile_data.braille_classification import BASE_DATA_PATH
 from tactile_learning.supervised.image_generator import demo_image_generation
@@ -19,16 +20,14 @@ if __name__ == '__main__':
     output_dir = '_'.join([args.robot, args.sensor])
     learning_params, preproc_params = setup_learning()
 
-    for args.task in args.tasks:
+    data_dirs = [
+        os.path.join(BASE_DATA_PATH, output_dir, *i) for i in it.product(args.tasks, args.data_dirs)
+    ]
 
-        data_dirs = [
-            os.path.join(BASE_DATA_PATH, output_dir, args.task, dir) for dir in args.data_dirs
-        ]
-
-        demo_image_generation(
-            data_dirs,
-            csv_row_to_label[args.task],
-            learning_params,
-            preproc_params['image_processing'],
-            preproc_params['augmentation']
-        )
+    demo_image_generation(
+        data_dirs,
+        csv_row_to_label['all'],
+        learning_params,
+        preproc_params['image_processing'],
+        preproc_params['augmentation']
+    )
