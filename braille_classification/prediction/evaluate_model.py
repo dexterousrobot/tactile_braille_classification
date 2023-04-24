@@ -41,7 +41,7 @@ def evaluate_model(
     for batch in loader:
 
         # get inputs
-        inputs, labels_dict = batch['images'], batch['labels']
+        inputs, labels_dict = batch['inputs'], batch['labels']
 
         # wrap them in a Variable object
         inputs = Variable(inputs).float().to(device)
@@ -87,16 +87,23 @@ def evaluation(args):
         # setup parameters
         learning_params = load_json_obj(os.path.join(model_dir, 'learning_params'))
         model_params = load_json_obj(os.path.join(model_dir, 'model_params'))
-        task_params = load_json_obj(os.path.join(model_dir, 'task_params'))
-        preproc_params = load_json_obj(os.path.join(model_dir, 'preproc_params'))
+        label_params = load_json_obj(os.path.join(model_dir, 'model_label_params'))
+        image_params = load_json_obj(os.path.join(model_dir, 'model_image_params'))
+
+        # configure dataloader
+        val_generator = ImageDataGenerator(
+            val_data_dirs,
+            csv_row_to_label[args.task],
+            **image_params['image_processing']
+        )
 
         # create the label encoder/decoder and error plotter
-        label_encoder = LabelEncoder(task_params['label_names'], args.device)
-        error_plotter = ClassificationPlotter(task_params['label_names'], model_dir, name='error_plot_best.png')
+        label_encoder = LabelEncoder(label_params['label_names'], args.device)
+        error_plotter = ClassificationPlotter(label_params['label_names'], model_dir, name='error_plot_best.png')
 
         # create the model
         model = create_model(
-            in_dim=preproc_params['image_processing']['dims'],
+            in_dim=image_params['image_processing']['dims'],
             in_channels=1,
             out_dim=label_encoder.out_dim,
             model_params=model_params,
@@ -104,12 +111,6 @@ def evaluation(args):
             device=args.device
         )
         model.eval()
-
-        val_generator = ImageDataGenerator(
-            val_data_dirs,
-            csv_row_to_label[args.task],
-            **preproc_params['image_processing']
-        )
 
         evaluate_model(
             model,

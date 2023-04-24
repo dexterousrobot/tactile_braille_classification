@@ -5,7 +5,7 @@ import os
 
 from tactile_data.braille_classification import BASE_DATA_PATH
 from tactile_data.collect_data.collect_data import collect_data
-from tactile_data.collect_data.process_data import process_data, split_data
+from tactile_data.collect_data.process_image_data import process_image_data, partition_data
 from tactile_data.collect_data.setup_targets import setup_targets
 from tactile_data.utils import make_dir
 
@@ -23,12 +23,12 @@ def launch(args):
 
             # setup save dir
             save_dir = os.path.join(BASE_DATA_PATH, output_dir, args.task, args.data_dir)
-            image_dir = os.path.join(save_dir, "images")
+            image_dir = os.path.join(save_dir, "sensor_images")
             make_dir(save_dir)
             make_dir(image_dir)
 
             # setup parameters
-            collect_params, env_params, sensor_params = setup_collect_data(
+            collect_params, env_params, sensor_image_params = setup_collect_data(
                 args.robot,
                 args.sensor,
                 args.task,
@@ -38,7 +38,7 @@ def launch(args):
             # setup embodiment
             robot, sensor = setup_embodiment(
                 env_params,
-                sensor_params
+                sensor_image_params
             )
 
             # setup targets to collect
@@ -58,14 +58,14 @@ def launch(args):
             )
 
 
-def process(args, process_params, split=None):
+def process(args, image_params, split=None):
 
     output_dir = '_'.join([args.robot, args.sensor])
 
     for args.task in args.tasks:
         path = os.path.join(BASE_DATA_PATH, output_dir, args.task)
-        data_dirs = split_data(path, args.data_dirs, split)
-        process_data(path, data_dirs, process_params)
+        data_dirs = partition_data(path, args.data_dirs, split)
+        process_image_data(path, data_dirs, image_params)
 
 
 if __name__ == "__main__":
