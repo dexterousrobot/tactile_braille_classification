@@ -39,7 +39,7 @@ def launch(args):
         make_dir(save_dir)
 
         # setup parameters
-        learning_params, model_params, preproc_params, task_params = setup_training(
+        learning_params, model_params, label_params, image_params = setup_training(
             args.model,
             args.task,
             train_data_dirs,
@@ -50,22 +50,22 @@ def launch(args):
         train_generator = ImageDataGenerator(
             train_data_dirs,
             csv_row_to_label[args.task],
-            **{**preproc_params['image_processing'], **preproc_params['augmentation']}
+            **{**image_params['image_processing'], **image_params['augmentation']}
         )
         val_generator = ImageDataGenerator(
             val_data_dirs,
             csv_row_to_label[args.task],
-            **preproc_params['image_processing']
+            **image_params['image_processing']
         )
 
         # create the label encoder/decoder and plotter
-        label_encoder = LabelEncoder(task_params['label_names'], args.device)
-        error_plotter = ClassificationPlotter(task_params['label_names'], save_dir, final_only=False)
+        label_encoder = LabelEncoder(label_params['label_names'], args.device)
+        error_plotter = ClassificationPlotter(label_params['label_names'], save_dir, final_only=False)
 
         # create the model
         seed_everything(learning_params['seed'])
         model = create_model(
-            in_dim=preproc_params['image_processing']['dims'],
+            in_dim=image_params['image_processing']['dims'],
             in_channels=1,
             out_dim=label_encoder.out_dim,
             model_params=model_params,

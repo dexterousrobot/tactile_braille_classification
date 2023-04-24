@@ -11,7 +11,7 @@ KEY_LABEL_NAMES = [
 ]
 
 
-def setup_sensor_params(robot, sensor, save_dir=None):
+def setup_sensor_image_params(robot, sensor, save_dir=None):
 
     bbox_dict = {
         'mini': (320-160,    240-160+25, 320+160,    240+160+25),
@@ -20,13 +20,13 @@ def setup_sensor_params(robot, sensor, save_dir=None):
     sensor_type = 'midi'  # TODO: Fix hardcoded sensor type
 
     if 'sim' in robot:
-        sensor_params = {
+        sensor_image_params = {
             "type": "standard_tactip",
             "image_size": (256, 256),
             "show_tactile": True
         }
     else:
-        sensor_params = {
+        sensor_image_params = {
             'type': sensor_type,
             'source': 0,
             'exposure': -7,
@@ -35,9 +35,9 @@ def setup_sensor_params(robot, sensor, save_dir=None):
         }
 
     if save_dir:
-        save_json_obj(sensor_params, os.path.join(save_dir, 'sensor_params'))
+        save_json_obj(sensor_image_params, os.path.join(save_dir, 'sensor_image_params'))
 
-    return sensor_params
+    return sensor_image_params
 
 
 def setup_collect_params(robot, task, save_dir=None):
@@ -112,9 +112,10 @@ def setup_env_params(robot, save_dir=None):
 
 def setup_collect_data(robot, sensor, task, save_dir=None):
     collect_params = setup_collect_params(robot, task, save_dir)
-    sensor_params = setup_sensor_params(robot, sensor, save_dir)
+    sensor_image_params = setup_sensor_image_params(robot, sensor, save_dir)
     env_params = setup_env_params(robot, save_dir)
-    return collect_params, env_params, sensor_params
+    
+    return collect_params, env_params, sensor_image_params
 
 
 if __name__ == '__main__':
