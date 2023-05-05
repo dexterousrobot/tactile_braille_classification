@@ -73,9 +73,9 @@ if __name__ == "__main__":
     args = parse_args(
         robot='sim',
         sensor='tactip',
-        tasks=['arrows'],
-        data_dirs=['train_temp', 'val_temp'],
-        sample_nums=[80, 20] # per key
+        tasks=['alphabet'],
+        data_dirs=['train', 'test'],
+        sample_nums=[100, 50] # per key
     )
 
     process_params = {
