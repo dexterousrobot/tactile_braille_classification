@@ -1,5 +1,4 @@
 import os
-import glob
 import shutil
 
 from tactile_data.utils import save_json_obj

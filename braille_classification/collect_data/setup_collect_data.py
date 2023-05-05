@@ -1,13 +1,24 @@
 import os
+import numpy as np
+import itertools as it
 
 from tactile_data.utils import save_json_obj
 
 KEY_LABEL_NAMES = [
-    'UP', 'DOWN', 'LEFT', 'RIGHT', 'NONE',
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
-    'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
-    'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-    'SPACE', 'NONE'
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 
+    'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 
+    'U', 'V', 'W', 'X', 'Y', 'Z', 'UP', 'DOWN', 'LEFT', 'RIGHT', 
+    'NONE', 'SPACE'
+]
+
+KEYS_ALPHABET = [
+    'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 
+    'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 
+    'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'SPACE', 'NONE'
+]
+
+KEYS_ARROWS = [
+    'UP', 'DOWN', 'LEFT', 'RIGHT', 'NONE'
 ]
 
 
@@ -43,32 +54,29 @@ def setup_sensor_image_params(robot, sensor, save_dir=None):
 def setup_collect_params(robot, task, save_dir=None):
 
     pose_lims_dict = {
-        'arrows': [(-2.5, -2.5, 3, 0, 0, -10), (2.5, 2.5, 5, 0, 0, 10)],
         'alphabet': [(-2.5, -2.5, 3, 0, 0, -10), (2.5, 2.5, 5, 0, 0, 10)],
+        'arrows':   [(-2.5, -2.5, 3, 0, 0, -10), (2.5, 2.5, 5, 0, 0, 10)],
     }
 
     # WARNING: urdf does not follow this pattern exactly due to auto placement of STLs.
-    # This can introduce some bias in the data due to a slight offset in the placement of the key.
+    # This can introduce some bias in the data due to a slight offset in key placement.
 
-    if task == 'arrows':
-        object_poses_dict = {
-            label: (-17.5*2, 17.5*(6+i % 10), 0, 0, 0, 0)
-            for i, label in enumerate(KEY_LABEL_NAMES[:5])
-        }
-
-    if task == 'alphabet':
-        object_poses_dict = {
-            label: (-17.5*(i//10), 17.5*(i % 10), 0, 0, 0, 0)
-            for i, label in enumerate(KEY_LABEL_NAMES[5:])
-        }
-        object_poses_dict['SPACE'] = (-17.5*3, 17.5*3, 0, 0, 0, 0)
-
-    object_poses_dict['NONE'] = (-17.5*3, 17.5*8, -10, 0, 0, 0)
+    object_poses = {
+        KEY_LABEL_NAMES[10*i+j]: (-17.5*i, 17.5*j, 0, 0, 0, 0)
+        for i, j in np.ndindex(3, 10)
+    }
+    object_poses[KEY_LABEL_NAMES[-2]] = (-17.5*3, 17.5*8, -10, 0, 0, 0)
+    object_poses[KEY_LABEL_NAMES[-1]] = (-17.5*3, 17.5*3, 0, 0, 0, 0)
+    
+    object_poses_dict = {
+        'alphabet': {key: object_poses[key] for key in KEYS_ALPHABET},
+        'arrows':   {key: object_poses[key] for key in KEYS_ARROWS}
+    }
 
     collect_params = {
-        'object_poses': object_poses_dict,
         'pose_llims': pose_lims_dict[task][0],
         'pose_ulims': pose_lims_dict[task][1],
+        'object_poses': object_poses_dict[task],
         'sample_disk': True,
         'sort': True,
         'seed': 0
@@ -82,13 +90,14 @@ def setup_collect_params(robot, task, save_dir=None):
 
 def setup_env_params(robot, save_dir=None):
 
+    if robot.split('_')[0] == 'sim':
+        robot = 'sim'
+
     work_frame_dict = {
         'sim':   (593, -7, 25, -180, 0, 0),
     }
 
     tcp_pose_dict = {
-        'cr':    (0, 0, -70, 0, 0, 0),
-        'mg400': (0, 0, -50, 0, 0, 0),
         'sim':   (0, 0, -85, 0, 0, 90),
     }  # SHOULD BE ROBOT + SENSOR
 
