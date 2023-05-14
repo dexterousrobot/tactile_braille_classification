@@ -1,7 +1,7 @@
 import os
 import shutil
 
-from tactile_data.utils import save_json_obj
+from tactile_image_processing.utils import save_json_obj
 from braille_classification.collect_data.setup_collect_data import KEY_LABEL_NAMES
 
 

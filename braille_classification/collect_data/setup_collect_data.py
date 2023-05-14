@@ -2,7 +2,7 @@ import os
 import numpy as np
 import itertools as it
 
-from tactile_data.utils import save_json_obj
+from tactile_image_processing.utils import save_json_obj
 
 KEY_LABEL_NAMES = [
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 
