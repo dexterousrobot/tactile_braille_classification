@@ -4,10 +4,10 @@ python launch_collect_data.py -r sim -s tactip -t arrows
 import os
 
 from tactile_data.braille_classification import BASE_DATA_PATH
-from tactile_data.collect_data.collect_data import collect_data
-from tactile_data.collect_data.process_image_data import process_image_data, partition_data
-from tactile_data.collect_data.setup_targets import setup_targets
-from tactile_data.utils import make_dir
+from tactile_image_processing.collect_data.collect_data import collect_data
+from tactile_image_processing.collect_data.setup_targets import setup_targets
+from tactile_image_processing.process_data.process_image_data import process_image_data, partition_data
+from tactile_image_processing.utils import make_dir
 
 from braille_classification.collect_data.setup_collect_data import setup_collect_data
 from braille_classification.utils.parse_args import parse_args
